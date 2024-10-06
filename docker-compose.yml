@@ -1,0 +1,43 @@
+version: '3'
+
+volumes:
+  pg_data_fdgrm:
+  static_fdgrm:
+  media_fdgrm:
+
+services:
+
+  db:
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - pg_data_kitty:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend/
+    env_file: .env
+    depends_on:
+      - db
+    volumes:
+      - static_fdgrm:/backend_static
+
+  frontend:
+    env_file: .env
+    build: ./frontend/
+    command: cp -r /app/build/. /static/
+    volumes:
+      - static_fdgrm:/static
+    depends_on:
+      - backend
+
+
+  gateway:
+    build: ./nginx/
+    env_file: .env
+    ports:
+      - 8000:80
+    volumes:
+      - static_fdgrm:/static
+      - media_fdgrm:/app/media
+    depends_on:
+      - frontend
