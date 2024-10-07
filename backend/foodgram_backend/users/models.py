@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import CheckConstraint, Q, F
 
-from users.constants import USERNAME_LENGTH, EMAIL_LENGTH, MAX_DISPLAY_LENGTH
+from users.constants import USERNAME_LENGTH
 from users.validators import UsernameValidator
 
 
@@ -44,6 +44,11 @@ class User (AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'password', 'first_name', 'last_name')
 
+    class Meta:
+        default_related_name = 'users'
+        ordering = ('username',)
+
+
     def __str__(self):
         """Возвращает username в качестве строкового представления объекта."""
         return self.username[:USERNAME_LENGTH]
@@ -57,12 +62,12 @@ class User (AbstractUser):
         )
 
 
+
 class Follow(models.Model):
     """
     Модель, описывающая параметры
     подписок пользователей на других пользователей.
     """
-
 
     user = models.ForeignKey(
         User,
@@ -78,8 +83,10 @@ class Follow(models.Model):
         verbose_name='Подписки',
         blank=False,
     )
+
     class Meta:
         ordering = ('user',)
+        default_related_name = 'followers'
         constraints = (
             CheckConstraint(
                 check=~models.Q(user=models.F('following')),
@@ -91,4 +98,4 @@ class Follow(models.Model):
         )
 
     def __str__(self):
-        return {self.following}
+        return f'{self.user} following {self.following}'

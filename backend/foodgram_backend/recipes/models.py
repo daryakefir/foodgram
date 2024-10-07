@@ -11,7 +11,6 @@ from recipes.constants import (
 )
 
 
-
 class MeasurementUnit(models.Model):
     """Модель, описывающая единицы измерения."""
 
@@ -28,6 +27,7 @@ class MeasurementUnit(models.Model):
 
     class Meta:
         ordering = ('name',)
+        default_related_name = 'measurement_units'
         verbose_name = 'Единица измерения'
         verbose_name_plural = 'Единицы измерения'
 
@@ -51,9 +51,10 @@ class Ingredient(models.Model):
     )
 
     class Meta:
+        default_related_name = 'ingredients'
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ('id',)
+        ordering = ('name',)
 
     def __str__(self):
         return self.name[:MAX_DISPLAY_LENGTH]
@@ -72,6 +73,7 @@ class Tag(models.Model):
     )
 
     class Meta:
+        default_related_name = 'tags'
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
         ordering = ('name',)
@@ -95,6 +97,7 @@ class Recipe(models.Model):
     image = models.ImageField(
         upload_to='recipes/images/',
         null=True,
+        verbose_name='Изображение',
         default=None
     )
     text = models.TextField(verbose_name='Текст рецепта')
@@ -117,11 +120,17 @@ class Recipe(models.Model):
         ),
         verbose_name='Время приготовления'
     )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='Дата добавления'
+    )
 
     class Meta:
+        default_related_name = 'recipes'
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('name',)
+        ordering = ('pub_date',)
 
     def __str__(self):
         return f'{self.name} from {self.author}'[:MAX_DISPLAY_LENGTH]
@@ -143,7 +152,8 @@ class IngredientsAmountInRecipe(models.Model):
         validators=(
             MinValueValidator(
                 MIN_COOKING_TIME,
-                message=f'Минимальное количество ингредиентов:{MIN_INGRDEINTS_AMOUNT}'
+                message=f'Минимальное количество ингредиентов:'
+                        f'{MIN_INGRDEINTS_AMOUNT}'
             ),
         ),
     )
@@ -170,6 +180,8 @@ class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
+        default_related_name = 'favorites'
+        ordering = ('user',)
         unique_together = ('recipe', 'user')
 
     def __str__(self):
@@ -183,7 +195,11 @@ class ShoppingCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
+        default_related_name = 'shopping_carts'
+        ordering = ('user',)
         unique_together = ('recipe', 'user')
 
     def __str__(self):
-        return f'{self.recipe} in shopping cart {self.user}'[:MAX_DISPLAY_LENGTH]
+        return (f'{self.recipe} '
+                f'in shopping cart '
+                f'{self.user}')[:MAX_DISPLAY_LENGTH]

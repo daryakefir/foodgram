@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 
 from core.serializers import Base64ImageField
 from recipes.models import (
-    Favorite, Ingredient, MeasurementUnit,
-    ShoppingCart, Tag, Recipe, IngredientsAmountInRecipe, User
+    Favorite, Ingredient, ShoppingCart,
+    Tag, Recipe, IngredientsAmountInRecipe
 )
 from users.serializers import UserSerializer
 
@@ -13,7 +13,9 @@ from users.serializers import UserSerializer
 class IngredientSerializer(serializers.ModelSerializer):
     """Класс сериализатора для работы с ингредиентами."""
 
-    measurement_unit = serializers.CharField(source='measurement_unit.abbreviation')
+    measurement_unit = serializers.CharField(
+        source='measurement_unit.abbreviation'
+    )
 
     class Meta:
         model = Ingredient
@@ -39,11 +41,16 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientsAmountInRecipeSerializer(serializers.ModelSerializer):
-    """Класс сериализатора для корректного отображения количества ингредиентов в рецепте."""
+    """
+    Класс сериализатора для корректного
+    отображения количества ингредиентов в рецепте.
+    """
 
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit.abbreviation')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit.abbreviation'
+    )
 
     class Meta:
         model = IngredientsAmountInRecipe
@@ -98,7 +105,10 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         read_only_fields = '__all__',
 
     def _in_list(self, obj, model):
-        """Базовый метод для отображения, находится ли рецепт в избранном и списке покупок."""
+        """
+        Базовый метод для отображения,
+        находится ли рецепт в избранном и списке покупок.
+        """
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
@@ -172,7 +182,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                     {'errors': 'Ингредиенты дублируются!!!'})
             if int(item['amount']) <= 1:
                raise ValidationError(
-                {'errors': 'Количество ингредиентов не может быть меньше 1!!!'})
+                {'errors': 'Количество ингредиентов не может быть меньше 1!!!'}
+               )
             ingredients_list.append(ingredient)
         return value
 

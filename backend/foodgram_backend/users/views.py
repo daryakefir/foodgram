@@ -3,7 +3,9 @@ from django.contrib.auth import update_session_auth_hash
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
+from rest_framework.status import (
+    HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
+)
 
 from core.paginations import ApiPagination
 from core.permissions import IsOwnerAdminOrReadOnlyPermission
@@ -35,9 +37,9 @@ class FoodgramUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        methods=('get','put','delete'),
+        methods=('get', 'put', 'delete'),
         url_path='me/avatar',
-        permission_classes =(IsAuthenticated,)
+        permission_classes=(IsAuthenticated,)
     )
     def avatar(self, request):
         """Управление аватаром текущего пользователя."""
@@ -49,7 +51,7 @@ class FoodgramUserViewSet(UserViewSet):
             if 'avatar' not in request.data:
                 return Response(
                     {'errors': 'Поле аватара должно быть заполнено.'},
-                                status=HTTP_400_BAD_REQUEST
+                    status=HTTP_400_BAD_REQUEST
                 )
             serializer = UserSerializer(
                 user,
@@ -63,7 +65,7 @@ class FoodgramUserViewSet(UserViewSet):
                     {'avatar': serializer.data['avatar']}
                 )
             return Response(
-                serializer.errors,
+                {'errors:'},
                 status=HTTP_400_BAD_REQUEST
             )
 
@@ -78,7 +80,7 @@ class FoodgramUserViewSet(UserViewSet):
     @action(
         methods=('post',),
         detail=False,
-        permission_classes =(IsAuthenticated,)
+        permission_classes=(IsAuthenticated,)
     )
     def set_password(self, request):
         """Обновляет пароль текущего пользователя."""
@@ -106,7 +108,7 @@ class FoodgramUserViewSet(UserViewSet):
     @action(
         methods=('post', 'delete'),
         detail=True,
-        permission_classes =(IsAuthenticated,)
+        permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id=None):
         """Подписка/отписка на пользователя."""
@@ -123,8 +125,14 @@ class FoodgramUserViewSet(UserViewSet):
                     {'errors': 'Вы уже подписаны!!!'},
                     status=HTTP_400_BAD_REQUEST
                 )
-            subscription = Follow.objects.create(user=user, following=following)
-            serializer = FollowSerializer(subscription, context={'request': request})
+            subscription = Follow.objects.create(
+                user=user,
+                following=following
+            )
+            serializer = FollowSerializer(
+                subscription,
+                context={'request': request}
+            )
             return Response(serializer.data, status=HTTP_201_CREATED)
 
         elif request.method == 'DELETE':
@@ -134,7 +142,7 @@ class FoodgramUserViewSet(UserViewSet):
             )
             if not subscribtion.exists():
                 return Response(
-                    {'errors': f'Вы не подписаны на пользователя {following}!'},
+                    {'errors': f'Вы не подписаны на {following}!'},
                     status=HTTP_400_BAD_REQUEST
                 )
             subscribtion.delete()
@@ -147,7 +155,7 @@ class FoodgramUserViewSet(UserViewSet):
         methods=('get',),
         detail=False,
         url_path='subscriptions',
-        permission_classes = (IsAuthenticated,)
+        permission_classes=(IsAuthenticated,)
     )
     def get_subscriptions(self, request):
         """Получает подписки текущего пользователя."""

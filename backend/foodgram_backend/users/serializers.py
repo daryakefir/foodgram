@@ -30,8 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
         return Response(
             {
                  'id': new_user.id,
-                 'username':new_user.username,
-                 'email':new_user.email,
+                 'username': new_user.username,
+                 'email': new_user.email,
                  'first_name': new_user.first_name,
                  'last_name': new_user.last_name
             }
@@ -108,7 +108,7 @@ class FollowSerializer(serializers.ModelSerializer):
         """
         if self.context['request'].user == following:
             raise serializers.ValidationError(
-                {'errors':'Нельзя подписаться на себя!!!'}
+                {'errors': 'Нельзя подписаться на себя!!!'}
             )
         return following
 
@@ -119,7 +119,9 @@ class FollowSerializer(serializers.ModelSerializer):
         """
         user = self.context.get('request').user
         if not user.is_anonymous:
-            return Follow.objects.filter(user=user, following=obj.following).exists()
+            return Follow.objects.filter(
+                user=user, following=obj.following
+            ).exists()
         return False
 
     class Meta:

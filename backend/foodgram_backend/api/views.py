@@ -8,10 +8,16 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from api.filters import IngredientFilter, RecipeFilter
-from api.serializers import IngredientSerializer, RecipeGetSerializer, RecipeWriteSerializer, TagSerializer
+from api.serializers import (
+    IngredientSerializer, RecipeGetSerializer,
+    RecipeWriteSerializer, TagSerializer
+)
 from core.paginations import ApiPagination
 from core.permissions import IsOwnerAdminOrReadOnlyPermission, IsAdminOrReadOnly
-from recipes.models import Ingredient, Tag, Recipe, Favorite, ShoppingCart, IngredientsAmountInRecipe
+from recipes.models import (
+    Ingredient, Tag, Recipe,
+    Favorite, ShoppingCart, IngredientsAmountInRecipe
+)
 from users.serializers import RecipeSerializerForSubscriptions
 
 
@@ -89,7 +95,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=HTTP_400_BAD_REQUEST
                 )
             model.objects.create(user=user, recipe=recipe)
-            serializer = RecipeSerializerForSubscriptions(recipe, context={'request': request})
+            serializer = RecipeSerializerForSubscriptions(
+                recipe,
+                context={'request': request}
+            )
             return Response(serializer.data, status=HTTP_201_CREATED)
         elif request.method == 'DELETE':
             instance = model.objects.filter(user=user, recipe=recipe)
@@ -104,8 +113,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=HTTP_204_NO_CONTENT
             )
 
-
-    @action(methods=('post', 'delete'), detail=True, permission_classes=(IsAuthenticated,))
+    @action(
+        methods=('post', 'delete'),
+        detail=True,
+        permission_classes=(IsAuthenticated,)
+    )
     def favorite(self, request, pk=None):
         """Добавление (удаление) рецепта в избранное."""
         return self._write_favorite_and_in_shopping_cart(
@@ -115,7 +127,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'Рецепт успешно удален из избранного!'
         )
 
-    @action(methods=('post', 'delete'), detail=True, permission_classes=(IsAuthenticated,))
+    @action(
+        methods=('post', 'delete'),
+        detail=True,
+        permission_classes=(IsAuthenticated,)
+    )
     def shopping_cart(self, request, pk=None):
         """Добавление (удаление) рецепта в список покупок."""
         return self._write_favorite_and_in_shopping_cart(
@@ -125,16 +141,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'Рецепт успешно удален из списка покупок!'
         )
 
-    @action(methods=('get', ), detail=False, permission_classes=(IsAuthenticated,))
+    @action(
+        methods=('get', ),
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
     def download_shopping_cart(self, request):
         """Скачать список покупок в формате txt."""
         user = request.user
-        recipes_list = [item.recipe for item in ShoppingCart.objects.filter(user=user)]
+        recipes_list = [
+            item.recipe for item in ShoppingCart.objects.filter(user=user)
+        ]
         list_to_txt_file = {}
         for recipe in recipes_list:
             ingredients_list_in_recipe = {
-                item.ingredients.name: item.amount
-                for item in IngredientsAmountInRecipe.objects.filter(recipe=recipe)
+                item.ingredients.name: item.amount for
+                item in IngredientsAmountInRecipe.objects.filter(recipe=recipe)
             }
             for key, value in ingredients_list_in_recipe.items():
                 list_to_txt_file.setdefault(key, 0)
@@ -142,7 +164,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         file_path = 'Shopping_cart.txt'
         with open(file_path, 'w') as file:
-            file.write('Список покупок'+'\n')
+            file.write('Список покупок' + '\n')
             for ingredient, amount in list_to_txt_file.items():
                 file.write(f'{ingredient}: {amount}\n')
-        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_path)
+        return FileResponse(
+            open(file_path, 'rb'),
+            as_attachment=True,
+            filename=file_path
+        )

@@ -26,7 +26,9 @@ class RecipeFilter(filters.FilterSet):
     )
     author = filters.CharFilter(field_name='author')
     is_favorited = filters.BooleanFilter(method='filter_favorites_or_cart')
-    is_in_shopping_cart = filters.BooleanFilter(method='filter_favorites_or_cart')
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='filter_favorites_or_cart'
+    )
 
     class Meta:
         model = Recipe

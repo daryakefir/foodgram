@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
 from recipes.mixins import AdminUserPermissionMixin
-from recipes.models import MeasurementUnit, Ingredient, Tag, Recipe, IngredientsAmountInRecipe
+from recipes.models import MeasurementUnit, Ingredient, Tag, Recipe, IngredientsAmountInRecipe, Favorite, ShoppingCart
 
 
 @admin.register(MeasurementUnit)
@@ -68,14 +68,14 @@ class IngredientsAmountInRecipeAdmin(ModelAdmin):
 class RecipeAdmin(ModelAdmin):
     """Класс для настройки админ-зоны модели Recipe."""
 
-    ingredients = (IngredientAdmin,)
+    ingredients = (IngredientAdmin, )
 
     list_display = (
         'id',
         'author',
         'name',
     )
-    search_fields = ('author','name')
+    search_fields = ('author', 'name')
     list_filter = ('tags', )
     list_display_links = ('name',)
     empty_value_display = '-пусто-'
@@ -84,3 +84,29 @@ class RecipeAdmin(ModelAdmin):
         return obj.favorite.all().count()
 
     in_favorite.short_description = 'Количество добавлений в избранное'
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(ModelAdmin):
+    """Класс для настройки админ-зоны модели Favorite."""
+
+    list_display = (
+        'id',
+        'recipe',
+        'user',
+    )
+    search_fields = ('recipe','user')
+    empty_value_display = '-пусто-'
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(ModelAdmin):
+    """Класс для настройки админ-зоны модели ShoppingCart."""
+
+    list_display = (
+        'id',
+        'recipe',
+        'user',
+    )
+    search_fields = ('recipe','user')
+    empty_value_display = '-пусто-'
