@@ -50,7 +50,6 @@ class User (AbstractUser):
         default_related_name = 'users'
         ordering = ('id',)
 
-
     def __str__(self):
         """Возвращает username в качестве строкового представления объекта."""
         return self.username[:USERNAME_LENGTH]
@@ -62,7 +61,6 @@ class User (AbstractUser):
                 self.role == self.Roles.ADMIN
                 or self.is_staff or self.is_superuser
         )
-
 
 
 class Follow(models.Model):

@@ -56,10 +56,9 @@ class IngredientsAmountInRecipeAdmin(ModelAdmin):
         'id',
         'recipe',
         'ingredients',
-       # 'measurement_unit',
         'amount',
     )
-    list_filter = ('recipe','ingredients')
+    list_filter = ('recipe', 'ingredients')
     search_fields = ('recipe',)
     list_display_links = ('recipe',)
     empty_value_display = '-пусто-'
@@ -96,7 +95,7 @@ class FavoriteAdmin(ModelAdmin):
         'recipe',
         'user',
     )
-    search_fields = ('recipe','user')
+    search_fields = ('recipe', 'user')
     empty_value_display = '-пусто-'
 
 
@@ -109,5 +108,5 @@ class ShoppingCartAdmin(ModelAdmin):
         'recipe',
         'user',
     )
-    search_fields = ('recipe','user')
+    search_fields = ('recipe', 'user')
     empty_value_display = '-пусто-'
