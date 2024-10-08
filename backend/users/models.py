@@ -58,8 +58,8 @@ class User (AbstractUser):
     def admin(self):
         """Возвращает поле role со значение ADMIN."""
         return (
-                self.role == self.Roles.ADMIN
-                or self.is_staff or self.is_superuser
+                self.role == self.Roles.ADMIN or
+                self.is_staff or self.is_superuser
         )
 
 

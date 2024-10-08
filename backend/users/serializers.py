@@ -29,11 +29,11 @@ class UserSerializer(serializers.ModelSerializer):
         new_user = User.objects.create_user(**validated_data)
         return Response(
             {
-                 'id': new_user.id,
-                 'username': new_user.username,
-                 'email': new_user.email,
-                 'first_name': new_user.first_name,
-                 'last_name': new_user.last_name
+                'id': new_user.id,
+                'username': new_user.username,
+                'email': new_user.email,
+                'first_name': new_user.first_name,
+                'last_name': new_user.last_name
             }
         )
 
