@@ -179,7 +179,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 raise ValidationError(
                     {'errors': 'Ингредиенты дублируются!!!'})
             if int(item['amount']) <= 1:
-               raise ValidationError(
+                raise ValidationError(
                     {'errors': 'Кол-во ингредиентов не может быть меньше !!!'})
             ingredients_list.append(ingredient)
         return value
