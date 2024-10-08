@@ -168,7 +168,7 @@ class IngredientsAmountInRecipe(models.Model):
         )
 
     def __str__(self):
-        return  f'{self.ingredients} {self.amount}'[:MAX_DISPLAY_LENGTH]
+        return f'{self.ingredients} {self.amount}'[:MAX_DISPLAY_LENGTH]
 
 
 class Favorite(models.Model):

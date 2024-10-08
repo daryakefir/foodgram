@@ -57,10 +57,8 @@ class User (AbstractUser):
     @property
     def admin(self):
         """Возвращает поле role со значение ADMIN."""
-        return (
-                self.role == self.Roles.ADMIN or
-                self.is_staff or self.is_superuser
-        )
+        return (self.role == self.Roles.ADMIN
+                or self.is_staff or self.is_superuser)
 
 
 class Follow(models.Model):
