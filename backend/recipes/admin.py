@@ -80,8 +80,10 @@ class RecipeAdmin(ModelAdmin):
 
     list_display = (
         'id',
+        'pub_date',
         'author',
         'name',
+        'in_favorite',
     )
     search_fields = ('author', 'name')
     list_filter = ('tags', )
