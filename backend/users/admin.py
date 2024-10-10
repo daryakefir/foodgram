@@ -23,7 +23,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 @admin.register(Follow)
-class UserAdmin(admin.ModelAdmin):
+class FollowAdmin(admin.ModelAdmin):
     """Класс для настройки админ-зоны модели Follow."""
 
     list_display = (
