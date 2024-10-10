@@ -1,4 +1,5 @@
 from csv import DictReader
+
 from django.core.management import BaseCommand
 from django.conf import settings
 
@@ -6,10 +7,14 @@ from recipes.models import Ingredient
 
 
 DATA_FILES = {
-    'ingredients': ('ingredients.csv', Ingredient, ['name', 'measurement_unit']),
+    'ingredients': (
+        'ingredients.csv',
+        Ingredient,
+        ['name', 'measurement_unit']
+    ),
 }
 
-DATA_DIR = settings.BASE_DIR /'data'
+DATA_DIR = settings.BASE_DIR / 'data'
 
 
 class Command(BaseCommand):
