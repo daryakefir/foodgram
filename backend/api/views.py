@@ -62,7 +62,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_object(), data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        self.update(serializer)
         return Response(serializer.data)
 
     def _get_absolute_url(self, recipe):
