@@ -2,7 +2,7 @@ from csv import DictReader
 from django.core.management import BaseCommand
 from django.conf import settings
 
-from recepies.models import Ingredient
+from recipes.models import Ingredient
 from users.models import User
 
 
