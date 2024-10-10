@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'core.apps.CoreConfig'
+    'core.apps.CoreConfig',
+    'import_export'
 ]
 
 MIDDLEWARE = [

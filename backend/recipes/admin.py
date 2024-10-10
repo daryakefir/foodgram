@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 from recipes.mixins import AdminUserPermissionMixin
 from recipes.models import (Favorite, Ingredient, IngredientsAmountInRecipe,
@@ -20,10 +22,15 @@ class MeasurementUnitAdmin(ModelAdmin, AdminUserPermissionMixin):
     empty_value_display = '-пусто-'
 
 
+class IngredientResource(resources.ModelResource):
+    class Meta:
+        model = Ingredient
+
 @admin.register(Ingredient)
-class IngredientAdmin(ModelAdmin, AdminUserPermissionMixin):
+class IngredientAdmin(ImportExportModelAdmin, AdminUserPermissionMixin):
     """Класс для настройки админ-зоны модели Ingredient."""
 
+    resource_class = IngredientResource
     list_display = (
         'id',
         'name',
