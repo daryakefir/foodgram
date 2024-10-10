@@ -1,3 +1,5 @@
+from functools import partial
+
 import pyshorteners
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -60,9 +62,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def partial_update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_object(), data=request.data)
+        serializer = self.get_serializer(
+            self.get_object(),
+            data=request.data,
+            partial=True
+        )
         serializer.is_valid(raise_exception=True)
-        self.update(serializer)
+        self.perform_update(serializer)
         return Response(serializer.data)
 
     def _get_absolute_url(self, recipe):
@@ -73,7 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Получение короткой ссылки на рецепт."""
         recipe = self.get_object()
         full_url = request.build_absolute_uri(self._get_absolute_url(recipe))
-        short_url = pyshorteners.Shortener().tinyurl.short(full_url)
+        short_url = pyshorteners.Shortener().clck.ru.short(full_url)
         return Response({'short-link': short_url})
 
     def _write_favorite_and_in_shopping_cart(
