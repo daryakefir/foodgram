@@ -3,7 +3,6 @@ from django.core.management import BaseCommand
 from django.conf import settings
 
 from recipes.models import Ingredient
-from users.models import User
 
 
 DATA_FILES = {
@@ -29,10 +28,7 @@ class Command(BaseCommand):
     def get_foreign_keys(self, key):
         """Возвращает словарь с внешними ключами."""
         return {
-            'titles': {'category': Category},
-            'review': {'title_id': Title, 'author': User},
-            'comments': {'review_id': Review, 'author': User},
-            'genre_title': {'title_id': Title, 'genre_id': Genre}
+            'ingredients': {'ingredients': Ingredient},
         }.get(key, {})
 
     def load_data(self, file_name, model, fields, foreign_keys=None):
@@ -95,22 +91,15 @@ class Command(BaseCommand):
 
     def save_model_instance(self, model, model_data, loaded):
         """Создает и сохраняет экземпляр модели в базе данных."""
-        if model == Title.genre.through:
-            title = model_data['title']
-            genre = model_data['genre']
-            title.genre.add(genre)
-        else:
-            model_instance = model(**model_data)
-            model_instance.save()
+
+        model_instance = model(**model_data)
+        model_instance.save()
         loaded.append(model_data['id'])
 
     def report_results(self, model, loaded, skipped):
         """Выводит отчет о загруженных и пропущенных записях."""
 
-        if model == Title.genre.through:
-            model_name = "TitleGenre"
-        else:
-            model_name = model.__name__
+        model_name = model.__name__
 
         if loaded:
             loaded_info = ', '.join(loaded)
