@@ -26,6 +26,7 @@ class IngredientResource(resources.ModelResource):
     class Meta:
         model = Ingredient
 
+
 @admin.register(Ingredient)
 class IngredientAdmin(ImportExportModelAdmin, AdminUserPermissionMixin):
     """Класс для настройки админ-зоны модели Ingredient."""
