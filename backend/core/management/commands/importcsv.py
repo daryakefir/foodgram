@@ -10,7 +10,7 @@ DATA_FILES = {
     'ingredients': (
         'ingredients.csv',
         Ingredient,
-        ['name', 'measurement_unit']
+        ['id', 'name', 'measurement_unit']
     ),
 }
 
