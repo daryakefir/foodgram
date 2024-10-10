@@ -40,7 +40,7 @@ class TagViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для управления рецептами - объектами модели Recipe."""
 
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().order_by('-pub_date')
     permission_classes = (IsOwnerAdminOrReadOnlyPermission,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
