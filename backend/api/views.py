@@ -1,5 +1,3 @@
-from functools import partial
-
 import pyshorteners
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
