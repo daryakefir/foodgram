@@ -160,7 +160,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 list_to_txt_file.setdefault(key, 0)
                 list_to_txt_file[key] += value
 
-        file_path = 'Shopping_cart.txt'
+        file_path = 'Shopping_cart1.txt'
         with open(file_path, 'w') as file:
             file.write('Список покупок' + '\n')
             for ingredient, amount in list_to_txt_file.items():
