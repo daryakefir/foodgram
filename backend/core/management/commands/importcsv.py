@@ -18,11 +18,11 @@ DATA_DIR = settings.BASE_DIR / 'data'
 FILE_NAME = 'ingredients.csv'
 csv_file = DATA_DIR / FILE_NAME
 
+
 class Command(BaseCommand):
 
-
     def add_arguments(self, parser):
-        parser.add_argument(csv_file, type=str, help='Path to the CSV file to import')
+        parser.add_argument(csv_file, type=str)
 
     def handle(self, *args, **kwargs):
         csv_file = kwargs['csv_file']
@@ -33,9 +33,9 @@ class Command(BaseCommand):
                     row.pop('id', None)
                     Ingredient.objects.create(**row)
 
-            self.stdout.write(self.style.SUCCESS('Data imported successfully.'))
+            self.stdout.write(self.style.SUCCESS('Данные загружены.'))
 
         except FileNotFoundError:
-            self.stdout.write(self.style.ERROR(f'File "{csv_file}" not found.'))
+            self.stdout.write(self.style.ERROR('Файл не найден.'))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'An error occurred: {e}'))
+            self.stdout.write(self.style.ERROR(f'Ошибка: {e}'))
