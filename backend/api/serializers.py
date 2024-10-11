@@ -165,12 +165,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     cooking_time = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                MIN_INGRDEINTS_AMOUNT,
+                MIN_COOKING_TIME,
                 message=f'Минимальное время готовки:'
                         f'{MIN_INGRDEINTS_AMOUNT}'
             ),
             MaxValueValidator(
-                MAX_INGRDEINTS_AMOUNT,
+                MAX_COOKING_TIME,
                 message=f'Максимальное количество ингредиентов:'
                         f'{MAX_INGRDEINTS_AMOUNT}'
             ),

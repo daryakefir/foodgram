@@ -5,7 +5,8 @@ from recipes.constants import (LENGTH_ABB_MEASUREMENT_UNIT,
                                LENGTH_NAME_INGREDIENT,
                                LENGTH_NAME_MEASUREMENT_UNIT,
                                LENGTH_NAME_RECIPE, LENGTH_NAME_TAG,
-                               MAX_COOKING_TIME, MAX_DISPLAY_LENGTH, MAX_INGRDEINTS_AMOUNT,
+                               MAX_COOKING_TIME, MAX_DISPLAY_LENGTH,
+                               MAX_INGRDEINTS_AMOUNT,
                                MIN_COOKING_TIME, MIN_INGRDEINTS_AMOUNT)
 from users.models import User
 
