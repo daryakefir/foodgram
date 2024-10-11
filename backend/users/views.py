@@ -46,7 +46,7 @@ class FoodgramUserViewSet(UserViewSet):
         if request.method == 'GET':
             serializer = UserSerializer(user, context={'request': request})
             return Response(serializer.data)
-        elif request.method == 'PUT':
+        if request.method == 'PUT':
             if 'avatar' not in request.data:
                 return Response(
                     {'errors': 'Поле аватара должно быть заполнено.'},
@@ -68,7 +68,7 @@ class FoodgramUserViewSet(UserViewSet):
                 status=HTTP_400_BAD_REQUEST
             )
 
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             user.avatar.delete()
             user.save()
             return Response(
@@ -113,13 +113,8 @@ class FoodgramUserViewSet(UserViewSet):
         """Подписка/отписка на пользователя."""
         user = request.user
         following = self.get_object()
-        if user == following:
-            return Response(
-                {'errors': 'Нельзя подписаться на себя!!!'},
-                status=HTTP_400_BAD_REQUEST
-            )
         if request.method == 'POST':
-            if Follow.objects.filter(user=user, following=following).exists():
+            if user.followers.filter(user=user, following=following).exists():
                 return Response(
                     {'errors': 'Вы уже подписаны!!!'},
                     status=HTTP_400_BAD_REQUEST
@@ -134,8 +129,8 @@ class FoodgramUserViewSet(UserViewSet):
             )
             return Response(serializer.data, status=HTTP_201_CREATED)
 
-        elif request.method == 'DELETE':
-            subscribtion = Follow.objects.filter(
+        if request.method == 'DELETE':
+            subscribtion = user.followers.filter(
                 user=user,
                 following=following
             )
@@ -159,7 +154,7 @@ class FoodgramUserViewSet(UserViewSet):
     def get_subscriptions(self, request):
         """Получает подписки текущего пользователя."""
         user = request.user
-        subscriptions = Follow.objects.filter(user=user)
+        subscriptions = user.followers.all()
         pages = self.paginate_queryset(subscriptions)
         serializer = FollowSerializer(
             pages,

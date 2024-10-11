@@ -42,9 +42,9 @@ class UserSerializer(serializers.ModelSerializer):
         Проверка, подписан ли текущий авторизованный пользователь
         на выбранного пользователя.
         """
-        user = self.context.get('request').user
+        user = obj.user
         if not user.is_anonymous:
-            return Follow.objects.filter(user=user, following=obj).exists()
+            return user.following.filter(following=obj).exists()
         return False
 
 
@@ -87,7 +87,7 @@ class FollowSerializer(serializers.ModelSerializer):
         Получение количества рецептов,
         автором которого является выбранный пользователь.
         """
-        return Recipe.objects.filter(author=obj.following).count()
+        return obj.following.recipes.all().count()
 
     def get_recipes(self, obj):
         """
@@ -96,7 +96,7 @@ class FollowSerializer(serializers.ModelSerializer):
         """
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = Recipe.objects.filter(author=obj.following)
+        recipes = obj.following.recipes.all()
         if limit and limit.isdigit():
             recipes = recipes[:int(limit)]
         return RecipeSerializerForSubscriptions(recipes, many=True).data
@@ -117,9 +117,9 @@ class FollowSerializer(serializers.ModelSerializer):
         Проверка, подписан ли текущий авторизованный пользователь
         на выбранного пользователя.
         """
-        user = self.context.get('request').user
+        user = obj.user
         if not user.is_anonymous:
-            return Follow.objects.filter(
+            return user.followers.filter(
                 user=user, following=obj.following
             ).exists()
         return False

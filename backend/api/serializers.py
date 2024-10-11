@@ -1,6 +1,9 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
 
 from core.serializers import Base64ImageField
+from recipes.constants import (MAX_COOKING_TIME, MAX_INGRDEINTS_AMOUNT,
+                               MIN_COOKING_TIME, MIN_INGRDEINTS_AMOUNT)
 from recipes.models import (Favorite, Ingredient, IngredientsAmountInRecipe,
                             Recipe, ShoppingCart, Tag)
 from rest_framework import serializers
@@ -123,7 +126,20 @@ class AddIngredientsInRecipeSerializer(serializers.ModelSerializer):
     """Класс сериализатора для добавления ингредиентов в рецепт."""
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(
+        validators=(
+            MinValueValidator(
+                MIN_INGRDEINTS_AMOUNT,
+                message=f'Минимальное количество ингредиентов:'
+                        f'{MIN_INGRDEINTS_AMOUNT}'
+            ),
+            MaxValueValidator(
+                MAX_INGRDEINTS_AMOUNT,
+                message=f'Максимальное количество ингредиентов:'
+                        f'{MAX_INGRDEINTS_AMOUNT}'
+            ),
+        ),
+    )
 
     class Meta:
         model = IngredientsAmountInRecipe
@@ -145,6 +161,20 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
+    )
+    cooking_time = serializers.IntegerField(
+        validators=(
+            MinValueValidator(
+                MIN_INGRDEINTS_AMOUNT,
+                message=f'Минимальное время готовки:'
+                        f'{MIN_INGRDEINTS_AMOUNT}'
+            ),
+            MaxValueValidator(
+                MAX_INGRDEINTS_AMOUNT,
+                message=f'Максимальное количество ингредиентов:'
+                        f'{MAX_INGRDEINTS_AMOUNT}'
+            ),
+        ),
     )
 
     class Meta:
@@ -172,16 +202,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if not ingredients:
             raise ValidationError(
                 {'errors': 'Выберите ингредиенты!!!'})
-        ingredients_list = []
+        ingredients_set = set()
         for item in ingredients:
             ingredient = get_object_or_404(Ingredient, name=item['id'])
-            if ingredient in ingredients_list:
+            if ingredient in ingredients_set:
                 raise ValidationError(
                     {'errors': 'Ингредиенты дублируются!!!'})
-            if int(item['amount']) <= 1:
-                raise ValidationError(
-                    {'errors': 'Кол-во ингредиентов не может быть меньше !!!'})
-            ingredients_list.append(ingredient)
+            ingredients_set.add(ingredient)
         return value
 
     def validate_tags(self, value):
@@ -190,20 +217,23 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if not tags:
             raise ValidationError(
                 {'errors': 'Выберите теги!!!'})
-        tags_list = []
+        tags_set = set()
         for tag in tags:
-            if tag in tags_list:
+            if tag in tags_set:
                 raise ValidationError(
                     {'errors': 'Теги дублируются!!!'})
-            tags_list.append(tag)
+            tags_set.add(tag)
         return value
 
     def _add_tags_ingredients(self, ingredients, tags, model):
-        for ingredient in ingredients:
-            IngredientsAmountInRecipe.objects.update_or_create(
+        ingredients_amount = [
+            IngredientsAmountInRecipe(
                 recipe=model,
                 ingredients=ingredient['id'],
-                amount=ingredient['amount'])
+                amount=ingredient['amount']
+            ) for ingredient in ingredients
+        ]
+        IngredientsAmountInRecipe.objects.bulk_create(ingredients_amount)
         model.tags.set(tags)
 
     def create(self, validated_data):

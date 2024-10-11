@@ -1,5 +1,6 @@
 import pyshorteners
-from django.http import FileResponse
+from django.db.models import Sum
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -102,7 +103,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 context={'request': request}
             )
             return Response(serializer.data, status=HTTP_201_CREATED)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             instance = model.objects.filter(user=user, recipe=recipe)
             if not instance.exists():
                 return Response(
@@ -150,27 +151,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         """Скачать список покупок в формате txt."""
-        user = request.user
-        recipes_list = [
-            item.recipe for item in ShoppingCart.objects.filter(user=user)
-        ]
-        list_to_txt_file = {}
-        for recipe in recipes_list:
-            ingredients_list_in_recipe = {
-                item.ingredients.name: item.amount for
-                item in IngredientsAmountInRecipe.objects.filter(recipe=recipe)
-            }
-            for key, value in ingredients_list_in_recipe.items():
-                list_to_txt_file.setdefault(key, 0)
-                list_to_txt_file[key] += value
-
-        file_path = 'Shopping_cart1.txt'
-        with open(file_path, 'w') as file:
-            file.write('Список покупок' + '\n')
-            for ingredient, amount in list_to_txt_file.items():
-                file.write(f'{ingredient}: {amount}\n')
-        return FileResponse(
-            open(file_path, 'rb'),
-            as_attachment=True,
-            filename=file_path
-        )
+        ingredients = IngredientsAmountInRecipe.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by(
+            'ingredient__name'
+        ).annotate(ingredient_total=Sum('amount'))
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
+        response.write('Список покупок\n')
+        for ingredient in ingredients:
+            response.write(
+                f"{ingredient['ingredient__name']}: "
+                f"{ingredient['ingredient_total']} "
+                f"{ingredient['ingredient__measurement_unit']}\n")
+        return response

@@ -5,7 +5,7 @@ from recipes.constants import (LENGTH_ABB_MEASUREMENT_UNIT,
                                LENGTH_NAME_INGREDIENT,
                                LENGTH_NAME_MEASUREMENT_UNIT,
                                LENGTH_NAME_RECIPE, LENGTH_NAME_TAG,
-                               MAX_COOKING_TIME, MAX_DISPLAY_LENGTH,
+                               MAX_COOKING_TIME, MAX_DISPLAY_LENGTH, MAX_INGRDEINTS_AMOUNT,
                                MIN_COOKING_TIME, MIN_INGRDEINTS_AMOUNT)
 from users.models import User
 
@@ -147,13 +147,18 @@ class IngredientsAmountInRecipe(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredients_in_recipe'
     )
-    amount = models.FloatField(
+    amount = models.PositiveSmallIntegerField(
         validators=(
             MinValueValidator(
-                MIN_COOKING_TIME,
+                MIN_INGRDEINTS_AMOUNT,
                 message=f'Минимальное количество ингредиентов:'
                         f'{MIN_INGRDEINTS_AMOUNT}'
             ),
+            MaxValueValidator(
+                MAX_INGRDEINTS_AMOUNT,
+                message=f'Максимальное количество ингредиентов:'
+                        f'{MAX_INGRDEINTS_AMOUNT}'
+            )
         ),
     )
 
