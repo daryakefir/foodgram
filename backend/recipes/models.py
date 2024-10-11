@@ -2,7 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from recipes.constants import (
-    LENGTH_ABB_MEASUREMENT_UNIT,LENGTH_NAME_INGREDIENT,
+    LENGTH_ABB_MEASUREMENT_UNIT, LENGTH_NAME_INGREDIENT,
     LENGTH_NAME_MEASUREMENT_UNIT, LENGTH_NAME_RECIPE, LENGTH_NAME_TAG,
     MAX_COOKING_TIME, MAX_DISPLAY_LENGTH,
     MAX_INGRDEINTS_AMOUNT,
