@@ -1,6 +1,7 @@
 from django.contrib.auth import update_session_auth_hash
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
@@ -9,7 +10,7 @@ from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
 from core.paginations import ApiPagination
 from core.permissions import IsOwnerAdminOrReadOnlyPermission
 from users.models import Follow, User
-from users.serializers import FollowSerializer, UserSerializer
+from users.serializers import FollowSerializer, UserSerializer, FollowCreateSerializer
 
 
 class FoodgramUserViewSet(UserViewSet):
@@ -83,7 +84,7 @@ class FoodgramUserViewSet(UserViewSet):
     )
     def set_password(self, request):
         """Обновляет пароль текущего пользователя."""
-        user = request.user
+        user = self.request.user
         current_password = request.data.get('current_password')
         new_password = request.data.get('new_password')
         if not current_password or not new_password:
@@ -114,47 +115,45 @@ class FoodgramUserViewSet(UserViewSet):
         user = request.user
         following = self.get_object()
         if request.method == 'POST':
-            if user.followers.filter(user=user, following=following).exists():
-                return Response(
-                    {'errors': 'Вы уже подписаны!!!'},
-                    status=HTTP_400_BAD_REQUEST
-                )
-            subscription = Follow.objects.create(
-                user=user,
-                following=following
-            )
-            serializer = FollowSerializer(
-                subscription,
+            subscription_data = {
+                'user': user.id,
+                'following': following.id
+            }
+            serializer = FollowCreateSerializer(
+                data=subscription_data,
                 context={'request': request}
             )
-            return Response(serializer.data, status=HTTP_201_CREATED)
+            if serializer.is_valid():
+                Follow.objects.create(
+                    user=user,
+                    following=following
+                )
+                return Response(serializer.data, status=HTTP_201_CREATED)
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         if request.method == 'DELETE':
-            subscribtion = user.followers.filter(
-                user=user,
-                following=following
-            )
-            if not subscribtion.exists():
+                subscription = user.subscribers.filter(following=following)
+                if not subscription.exists():
+                    return Response(
+                        {'errors': f'Вы не подписаны на {following}!'},
+                        status=HTTP_400_BAD_REQUEST
+                    )
+                subscription.delete()
                 return Response(
-                    {'errors': f'Вы не подписаны на {following}!'},
-                    status=HTTP_400_BAD_REQUEST
+                    {'detail': f'Вы успешно отписались от {following}!'},
+                    status=HTTP_204_NO_CONTENT
                 )
-            subscribtion.delete()
-            return Response(
-                {'detail': f'Вы успешно отписались от {following}!'},
-                status=HTTP_204_NO_CONTENT
-            )
 
     @action(
         methods=('get',),
         detail=False,
         url_path='subscriptions',
         permission_classes=(IsAuthenticated,)
-    )
+        )
     def get_subscriptions(self, request):
         """Получает подписки текущего пользователя."""
         user = request.user
-        subscriptions = user.followers.all()
+        subscriptions = user.subscribers.all()
         pages = self.paginate_queryset(subscriptions)
         serializer = FollowSerializer(
             pages,

@@ -42,9 +42,9 @@ class UserSerializer(serializers.ModelSerializer):
         Проверка, подписан ли текущий авторизованный пользователь
         на выбранного пользователя.
         """
-        user = obj.user
+        user = self.context['request'].user
         if not user.is_anonymous:
-            return user.following.filter(following=obj).exists()
+            return user.subscribers.filter(following=obj).exists()
         return False
 
 
@@ -79,7 +79,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_avatar(self, obj):
         """Получение ссылки на аватар."""
-        user = obj.following
+        user = obj.following if hasattr(obj, 'following') else obj['following']
         return user.avatar.url if user.avatar else None
 
     def get_recipes_count(self, obj):
@@ -87,7 +87,8 @@ class FollowSerializer(serializers.ModelSerializer):
         Получение количества рецептов,
         автором которого является выбранный пользователь.
         """
-        return obj.following.recipes.all().count()
+        user = obj if hasattr(obj, 'following') else obj['following']
+        return Recipe.objects.filter(author=user.id).count()
 
     def get_recipes(self, obj):
         """
@@ -96,32 +97,21 @@ class FollowSerializer(serializers.ModelSerializer):
         """
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = obj.following.recipes.all()
+        user = obj if hasattr(obj, 'following') else obj['following']
+        recipes = Recipe.objects.filter(author=user.id)
         if limit and limit.isdigit():
             recipes = recipes[:int(limit)]
         return RecipeSerializerForSubscriptions(recipes, many=True).data
-
-    def validate_following(self, following):
-        """
-        Проверка, является ли выбранный для подписки пользователь
-        текущим авторизованным пользователем.
-        """
-        if self.context['request'].user == following:
-            raise serializers.ValidationError(
-                {'errors': 'Нельзя подписаться на себя!!!'}
-            )
-        return following
 
     def get_is_subscribed(self, obj):
         """
         Проверка, подписан ли текущий авторизованный пользователь
         на выбранного пользователя.
         """
-        user = obj.user
+        user = self.context['request'].user
+        following = obj.following if hasattr(obj, 'following') else obj['following']
         if not user.is_anonymous:
-            return user.followers.filter(
-                user=user, following=obj.following
-            ).exists()
+            return user.subscribers.filter(following=following).exists()
         return False
 
     class Meta:
@@ -137,6 +127,16 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes_count',
             'is_subscribed'
         )
+
+class FollowCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания подписки."""
+
+    class Meta:
+        model = Follow
+        fields = (
+            'user',
+            'following',
+        )
         validators = (
             serializers.UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
@@ -144,3 +144,22 @@ class FollowSerializer(serializers.ModelSerializer):
                 message='Вы уже подписаны на данного пользователя!!!'
             ),
         )
+
+    def validate_following(self, obj):
+        """
+        Проверка, является ли выбранный для подписки пользователь
+        текущим авторизованным пользователем.
+        """
+        if self.context['request'].user == obj:
+            raise serializers.ValidationError(
+                {'errors': 'Нельзя подписаться на себя!!!'}
+            )
+        return obj
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('user', None)
+        representation.pop('following', None)
+        user_data = FollowSerializer(instance, context=self.context).data
+        representation.update(user_data)
+        return representation

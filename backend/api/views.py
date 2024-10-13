@@ -57,19 +57,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeGetSerializer
         return RecipeWriteSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    def partial_update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            self.get_object(),
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
-
     def _get_absolute_url(self, recipe):
         return f'/recipes/{self.get_object()}'
 
@@ -78,7 +65,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Получение короткой ссылки на рецепт."""
         recipe = self.get_object()
         full_url = request.build_absolute_uri(self._get_absolute_url(recipe))
-        short_url = pyshorteners.Shortener().clck.ru.short(full_url)
+        short_url = pyshorteners.Shortener().clckru.short(full_url)
         return Response({'short-link': short_url})
 
     def _write_favorite_and_in_shopping_cart(
@@ -152,11 +139,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Скачать список покупок в формате txt."""
         ingredients = IngredientsAmountInRecipe.objects.filter(
-            recipe__shopping_cart__user=request.user
+            recipe__shoppingcart__user=request.user
         ).values(
-            'ingredient__name', 'ingredient__measurement_unit'
+            'ingredients__name', 'ingredients__measurement_unit__abbreviation'
         ).order_by(
-            'ingredient__name'
+            'ingredients__name'
         ).annotate(ingredient_total=Sum('amount'))
         response = HttpResponse(content_type='text/plain')
         response['Content-Disposition'] = \
@@ -164,7 +151,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response.write('Список покупок\n')
         for ingredient in ingredients:
             response.write(
-                f"{ingredient['ingredient__name']}: "
+                f"{ingredient['ingredients__name']}: "
                 f"{ingredient['ingredient_total']} "
-                f"{ingredient['ingredient__measurement_unit']}\n")
+                f"{ingredient['ingredients__measurement_unit__abbreviation']}\n")
         return response
