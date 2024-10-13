@@ -153,5 +153,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
             response.write(
                 f"{ingredient['ingredients__name']}: "
                 f"{ingredient['ingredient_total']} "
-                f"{ingredient['ingredients__measurement_unit__abbreviation']}\n")
+                f"{ingredient['ingredients__measurement_unit__name']}\n")
         return response

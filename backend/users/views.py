@@ -1,7 +1,6 @@
 from django.contrib.auth import update_session_auth_hash
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
@@ -10,7 +9,8 @@ from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
 from core.paginations import ApiPagination
 from core.permissions import IsOwnerAdminOrReadOnlyPermission
 from users.models import Follow, User
-from users.serializers import FollowSerializer, UserSerializer, FollowCreateSerializer
+from users.serializers import (FollowSerializer,
+                               UserSerializer, FollowCreateSerializer)
 
 
 class FoodgramUserViewSet(UserViewSet):
@@ -132,24 +132,24 @@ class FoodgramUserViewSet(UserViewSet):
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         if request.method == 'DELETE':
-                subscription = user.subscribers.filter(following=following)
-                if not subscription.exists():
-                    return Response(
-                        {'errors': f'Вы не подписаны на {following}!'},
-                        status=HTTP_400_BAD_REQUEST
-                    )
-                subscription.delete()
+            subscription = user.subscribers.filter(following=following)
+            if not subscription.exists():
                 return Response(
-                    {'detail': f'Вы успешно отписались от {following}!'},
-                    status=HTTP_204_NO_CONTENT
+                    {'errors': f'Вы не подписаны на {following}!'},
+                    status=HTTP_400_BAD_REQUEST
                 )
+            subscription.delete()
+            return Response(
+                {'detail': f'Вы успешно отписались от {following}!'},
+                status=HTTP_204_NO_CONTENT
+            )
 
     @action(
         methods=('get',),
         detail=False,
         url_path='subscriptions',
         permission_classes=(IsAuthenticated,)
-        )
+    )
     def get_subscriptions(self, request):
         """Получает подписки текущего пользователя."""
         user = request.user

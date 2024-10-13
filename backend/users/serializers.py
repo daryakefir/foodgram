@@ -109,7 +109,8 @@ class FollowSerializer(serializers.ModelSerializer):
         на выбранного пользователя.
         """
         user = self.context['request'].user
-        following = obj.following if hasattr(obj, 'following') else obj['following']
+        following = obj.following if hasattr(obj, 'following') \
+            else obj['following']
         if not user.is_anonymous:
             return user.subscribers.filter(following=following).exists()
         return False
@@ -127,6 +128,7 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes_count',
             'is_subscribed'
         )
+
 
 class FollowCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания подписки."""
