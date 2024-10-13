@@ -42,7 +42,7 @@ class UserSerializer(serializers.ModelSerializer):
         Проверка, подписан ли текущий авторизованный пользователь
         на выбранного пользователя.
         """
-        user = self.context.get('request').user
+        user = self.context['request'].user
         if not user.is_anonymous:
             return user.subscribers.filter(following=obj).exists()
         return False
@@ -108,7 +108,7 @@ class FollowSerializer(serializers.ModelSerializer):
         Проверка, подписан ли текущий авторизованный пользователь
         на выбранного пользователя.
         """
-        user = self.context.get('request').user
+        user = self.context['request'].user
         following = obj.following if hasattr(obj, 'following') \
             else obj['following']
         if not user.is_anonymous:
@@ -152,7 +152,7 @@ class FollowCreateSerializer(serializers.ModelSerializer):
         Проверка, является ли выбранный для подписки пользователь
         текущим авторизованным пользователем.
         """
-        if self.context.get('request').user == obj:
+        if self.context['request'].user == obj:
             raise serializers.ValidationError(
                 {'errors': 'Нельзя подписаться на себя!!!'}
             )
