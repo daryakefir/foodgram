@@ -146,8 +146,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredients__name'
         ).annotate(ingredient_total=Sum('amount'))
         response = HttpResponse(content_type='text/plain')
-        response['Content-Disposition'] = ('attachment; '
-                                           'filename="shopping_cart.txt"')
+        response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
         response.write('Список покупок\n')
         for ingredient in ingredients:
             abb = ingredient['ingredients__measurement_unit__abbreviation']
