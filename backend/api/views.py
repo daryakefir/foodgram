@@ -141,7 +141,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = IngredientsAmountInRecipe.objects.filter(
             recipe__shoppingcart__user=request.user
         ).values(
-            'ingredients__name', 'ingredients__measurement_unit'
+            'ingredients__name',
+            'ingredients__measurement_unit__abbreviation'
         ).order_by(
             'ingredients__name'
         ).annotate(ingredient_total=Sum('amount'))
@@ -149,7 +150,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
         response.write('Список покупок\n')
         for ingredient in ingredients:
-            abb = ingredient['ingredients__measurement_unit']
+            abb = ingredient['ingredients__measurement_unit__abbreviation']
             response.write(
                 f"{ingredient['ingredients__name']}: "
                 f"{ingredient['ingredient_total']} {abb} \n")
