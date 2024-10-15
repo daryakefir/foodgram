@@ -149,7 +149,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
         response.write('Список покупок\n')
         for ingredient in ingredients:
-            abb = ingredient['ingredients__measurement_unit_abbreviation']
+            abb = ingredient['ingredients__measurement_unit']
             response.write(
                 f"{ingredient['ingredients__name']}: "
                 f"{ingredient['ingredient_total']} {abb} \n")
