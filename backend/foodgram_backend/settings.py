@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
     'core.apps.CoreConfig',
-    'import_export'
+    'import_export',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
