@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'core.apps.CoreConfig',
     'import_export',
-    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -40,7 +39,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'foodgram_backend.urls'

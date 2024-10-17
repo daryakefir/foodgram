@@ -24,9 +24,9 @@ services:
   frontend:
     env_file: .env
     build: ./frontend/
-    command: cp -r /app/build/. /static/
+    command: cp -r /app/build/. /frontend_static/
     volumes:
-      - static_fdgrm:/static
+      - static_fdgrm:/frontend_static
     depends_on:
       - backend
 
@@ -37,7 +37,7 @@ services:
     ports:
       - 8000:80
     volumes:
-      - static_fdgrm:/static
+      - static_fdgrm:/staticfiles/
       - media_fdgrm:/app/media
     depends_on:
       - frontend

@@ -3,7 +3,7 @@ version: '3'
 volumes:
   pg_data_production_fdgrm:
   static_volume_fdgrm:
-  media_fdgrm:
+  media_volume_fdgrm:
 
 services:
   db:
@@ -37,6 +37,6 @@ services:
       - frontend
     volumes:
       - static_volume_fdgrm:/staticfiles/
-      - media_fdgrm:/app/media
+      - media_volume_fdgrm:/app/media
     ports:
       - 8000:80
