@@ -19,7 +19,7 @@ services:
       - db
     volumes:
       - static_volume_fdgrm:/backend_static
-      - media_fdgrm:/app/media
+      - media_volume_fdgrm:/app/media
 
   frontend:
     image: daryakefir/foodgram_frontend:latest
