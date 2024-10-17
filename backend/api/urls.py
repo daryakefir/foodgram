@@ -10,5 +10,5 @@ router_v1.register('recipes', RecipeViewSet, basename='recipes')
 router_v1.register('tags', TagViewSet, basename='tags')
 
 urlpatterns = [
-    path('api/', include(router_v1.urls)),
+    path('', include(router_v1.urls)),
 ]
